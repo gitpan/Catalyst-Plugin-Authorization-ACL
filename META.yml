@@ -1,0 +1,21 @@
+---
+name: Catalyst-Plugin-Authorization-ACL
+version: 0.01
+author:
+  - 'Yuval Kogman, C<nothingmuch@woobling.org>'
+abstract: ACL support for L<Catalyst> applications.
+license: perl
+requires:
+  Catalyst: 5.49
+  Class::Data::Inheritable: 0
+  Class::Throwable: 0
+  Test::Plan: 0
+  Tree::Simple::Visitor::FindByPath: 0
+  Tree::Simple::Visitor::GetAllDescendents: 0
+provides:
+  Catalyst::Plugin::Authorization::ACL:
+    file: lib/Catalyst/Plugin/Authorization/ACL.pm
+    version: 0.01
+  Catalyst::Plugin::Authorization::ACL::Engine:
+    file: lib/Catalyst/Plugin/Authorization/ACL/Engine.pm
+generated_by: Module::Build version 0.2611

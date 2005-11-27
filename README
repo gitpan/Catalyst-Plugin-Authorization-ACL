@@ -1,0 +1,187 @@
+NAME
+    Catalyst::Plugin::Authorization::ACL - ACL support for Catalyst
+    applications.
+
+SYNOPSIS
+            use Catalyst qw/
+                    Authentication
+                    Authorization::Roles
+                    Authorization::ACL
+            /;
+
+            __PACKAGE__->setup;
+
+            __PACKAGE__->deny_access_unless(
+                    "/foo/bar",
+                    [qw/nice_role/],
+            );
+
+            __PACKAGE__>allow_access_if(
+                    "/foo/bar/gorch",
+                    sub { return $boolean },
+            );
+
+DESCRIPTION
+    This module provide Access Control Lists with arbitrary rules for
+    Catalyst applications. It operates on the Catalyst private namespace, at
+    least for the mean while.
+
+    The two hierarchies of actions and controllers in Catalyst are:
+
+    Private Namepsace
+        Every action has it's own private path. This path reflects the Perl
+        namespaces the actions were born in, and the namespaces of their
+        controllers.
+
+    External namespace
+        Some actions are also accessible from the outside, via another path.
+
+        This path is usually the same, if you used "Local". Alternatively
+        you can use "Path", "Regex", or "Global" to specify a different
+        external path for your action.
+
+    The ACL module currently only knows to exploit the private namespace. In
+    the future extensions may be made to support external namespaces as
+    well.
+
+METHODS
+    allow_access_if $path, $predicate
+    Check the predicate condition and allow access to the actions under
+    $path if the predicate is true.
+
+    This is normally useful to allow acces only to a specific part of a tree
+    whose parent has a "deny_access_unless" clause attached to it.
+
+    If the predicate condition is false access is not denied or allowed.
+    Instead the next rule will be checked - in this sense the combinatory
+    behavior of these rules is like logical OR.
+
+    deny_access_unless $path, $predicate
+    Check the predicate condition and disallow access if the predicacte is
+    false.
+
+    This is normally useful to restrict access to any portion of the
+    application unless a certain condition can be met.
+
+    If the predicate condition is true access is not allowed or denied.
+    Instead the next rule will be checked - in this sense the combinatory
+    behavior of these rules is like logical AND
+
+    acl_add_rule $path, $rule, [ $filter ]
+    Manually add a rule to all the actions under $path using the more
+    flexible (but more verbose) method:
+
+            __PACKAGE__->acl_add_rule(
+                    "/foo",
+                    sub { ... }, # see FLEXIBLE RULES below
+                    sub {
+                            my $action = shift;
+                            # return a true value if you want to apply the rule to this action
+                            # called for all the actions under "/foo"
+                    }
+            };
+
+    In this case the rule must be a sub reference (or method name) to be
+    invoked on $c.
+
+    The default filter will skip all actions starting with an underscore,
+    namely "_DISPATCH", "_AUTO", etc (but not "auto", "begin", et al).
+
+    RULE EVALUATION
+    When a rule is attached to an action the "distance" from the path it was
+    specified in is recorded. The closer the path is to the rule, the
+    earlier it will be checked.
+
+    Any rule can either explicitly deny or explicitly allow access to a
+    particular action. If a rule does not explicitly allow or permit access,
+    the next rule is checked, until the list of rules is finished. If no
+    rule has determined a policy, action to the controller will be
+    permitted.
+
+    PATHS
+    To apply a rule to an action or group of actions you must supply a path.
+
+    This path is what you should see dumped at the begining of the Catalyst
+    server's debug output.
+
+    For example, for the "foo" action defined at the root level of your
+    applycation, specify "/foo". Under the "Moose" controller (e.g.
+    "MyApp::C::Moose", the action "bar" will be "/moose/bar").
+
+    The "distance" a path has from an action that is contained in it is the
+    the difference in the number of slashes between the path of the action,
+    and the path to which the rule was applied.
+
+    EASY RULES
+    There are several kinds of rules you can create without using the
+    complex interface described in "FLEXIBLE RULES".
+
+    The easy rules are all predicate list oriented. "allow_access_if" will
+    explicitly allow access if the predicate is true, and
+    "deny_access_unless" will explicitly disallow if the predicate is false.
+
+    Role Lists
+                __PACAKGE__->deny_access_unless( "/foo/bar", [qw/admin moose_trainer/] );
+
+        When the role is evaluated the
+        Catalyst::Plugin::Authorization::Roles will be used to check whether
+        the currently logged in user has the specified roles.
+
+        If "allow_access_if" is used, the presence of all the roles will
+        immediately permit access, and if "deny_access_unless" is used the
+        lack of any of the roles will immediately deny access.
+
+        When specifying a role list without the
+        Catalyst::Plugin::Authorization::Roles plugin loaded the ACL engine
+        will throw an error.
+
+    Predicate Code Reference / Method Name
+        The code reference or method is invoked with the context and the
+        action objects. The boolean return value will determine the behavior
+        of the rule.
+
+                __PACKAGE__->allow_access_if( "/gorch", sub { ... } );
+                __PACKAGE__->deny_access_unless( "/moose", "method_name" );
+
+        When specifying a method name the rule engine ensures that it can be
+        invoked uising "can" in UNIVERSAL.
+
+    FLEXIBLE RULES
+    These rules are the most annoying to write but provide the most
+    flexibility.
+
+    All access control is performed using exceptions -
+    $Catalyst::Plugin::Authorization::ACL::Engine::DENIED, and
+    $Catalyst::Plugin::Authorization::ACL::Engine::ALLOWED (these can be
+    imported from the engine module).
+
+    If no rule decided to explicitly allow or disallow access, access will
+    be permitted.
+
+    Here is a rule that will always end the rule list by either explicitly
+    allowing or denying access based on how much mojo the current user has:
+
+            __PACKAGE__->acl_add_rule(
+                    "/foo",
+                    sub {
+                            my ( $c, $action ) = @_;        
+                        
+                            if ( $c->user->mojo > 50 ) {
+                                    die $ALLOWED;
+                            } else {
+                                    die $DENIED;
+                            }
+                    }
+            );
+
+SEE ALSO
+    Catalyst::Plugin::Authentication, Catalyst::Plugin::Authorization::Roles
+
+AUTHOR
+    Yuval Kogman, "nothingmuch@woobling.org"
+
+COPYRIGHT & LICNESE
+            Copyright (c) 2005 the aforementioned authors. All rights
+            reserved. This program is free software; you can redistribute
+            it and/or modify it under the same terms as Perl itself.
+

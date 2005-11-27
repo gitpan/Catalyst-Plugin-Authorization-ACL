@@ -1,0 +1,14 @@
+Build.PL
+lib/Catalyst/Plugin/Authorization/ACL.pm
+lib/Catalyst/Plugin/Authorization/ACL/Engine.pm
+Makefile.PL
+MANIFEST			This list of files
+META.yml
+README
+t/lib/ACLTestApp.pm
+t/lib/ACLTestApp/C/Auth.pm
+t/lib/ACLTestApp/C/LionCage.pm
+t/lib/ACLTestApp/C/Zoo.pm
+t/lib/ACLTestApp/C/Zoo/Penguins.pm
+t/live_app.t
+SIGNATURE    Added here by Module::Build
