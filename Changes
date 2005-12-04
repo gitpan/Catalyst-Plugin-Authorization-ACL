@@ -1,0 +1,12 @@
+Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
+
+0.03    2005-12-04 22:07:00
+        - Maybe somem tiny doc fixes
+        - No longer relies on Test::Plan which had some trouble with windows
+          and was used incorrectly anyhow ;-)
+
+0.02    ???
+        - can't recall, may have been drunk
+
+0.01    ???
+        - Initial release.

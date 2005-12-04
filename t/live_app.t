@@ -6,16 +6,16 @@ use warnings;
 use lib "t/lib";
 
 use Test::More;
-use Test::Plan;
 
 BEGIN {
-	plan 'no_plan', map { need_module($_) } qw/
-		Test::WWW::Mechanize::Catalyst
-		Catalyst::Plugin::Authorization::Roles
-		Catalyst::Plugin::Authentication
-		Catalyst::Plugin::Session
-		Catalyst::Plugin::Session::State::Cookie
-	/;
+    eval {
+		require Test::WWW::Mechanize::Catalyst;
+		require Catalyst::Plugin::Authorization::Roles;
+		require Catalyst::Plugin::Authentication;
+		require Catalyst::Plugin::Session;
+		require Catalyst::Plugin::Session::State::Cookie;
+    } or plan 'skip_all' => "A bunch of plugins are required for this test... Look in the source if you really care... $@";
+    plan tests => 97;
 }
 	
 use Test::WWW::Mechanize::Catalyst 'ACLTestApp';

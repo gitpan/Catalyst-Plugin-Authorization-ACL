@@ -11,7 +11,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = "0.01";
+our $VERSION = "0.03";
 
 sub execute {
     my ( $c, $class, $action ) = @_;
@@ -102,61 +102,65 @@ Catalyst::Plugin::Authorization::ACL - ACL support for L<Catalyst> applications.
 
 =head1 DESCRIPTION
 
-This module provide Access Control Lists with arbitrary rules for L<Catalyst>
-applications. It operates on the L<Catalyst> private namespace, at least for
-the mean while.
+This module provides Access Control List style path protection, with arbitrary 
+rules for L<Catalyst> applications. It operates only on the L<Catalyst> 
+private namespace, at least at the moment.
 
 The two hierarchies of actions and controllers in L<Catalyst> are:
 
 =over 4
 
-=item Private Namepsace
+=item Private Namespace
 
 Every action has it's own private path. This path reflects the Perl namespaces
 the actions were born in, and the namespaces of their controllers.
 
-=item External namespace
+=item External Namespace
 
-Some actions are also accessible from the outside, via another path.
+Some actions are also directly accessible from the outside, via a URL.
 
-This path is usually the same, if you used C<Local>. Alternatively you can use
-C<Path>, C<Regex>, or C<Global> to specify a different external path for your
-action.
+The private and external paths will be the same, if you are using Local actions. Alternatively you can use C<Path>, C<Regex>, or C<Global> to specify a different external path for your action.
 
 =back
 
 The ACL module currently only knows to exploit the private namespace. In the
 future extensions may be made to support external namespaces as well.
 
+Various types of rules are supported, see the list under L</RULES>.
+
+When a path is visited, rules are tested one after the other, with the most 
+exact rule fitting the path first, and continuing up the path. Testing 
+continues until a rule explcitly allows or denies access.
+
 =head1 METHODS
 
-=item allow_access_if $path, $predicate
+=item allow_access_if $path, $rule
 
-Check the predicate condition and allow access to the actions under C<$path> if
-the predicate is true.
+Check the rule condition and allow access to the actions under C<$path> if
+the rule returns true.
 
 This is normally useful to allow acces only to a specific part of a tree whose
 parent has a C<deny_access_unless> clause attached to it.
 
-If the predicate condition is false access is not denied or allowed. Instead
-the next rule will be checked - in this sense the combinatory behavior of these
-rules is like logical B<OR>.
+If the rule test returns false access is not denied or allowed. Instead
+the next rule in the chain will be checked - in this sense the combinatory 
+behavior of these rules is like logical B<OR>.
 
-=item deny_access_unless $path, $predicate
+=item deny_access_unless $path, $rule
 
-Check the predicate condition and disallow access if the predicacte is false.
+Check the rule condition and disallow access if the rule returns false.
 
 This is normally useful to restrict access to any portion of the application
 unless a certain condition can be met.
 
-If the predicate condition is true access is not allowed or denied. Instead the
-next rule will be checked - in this sense the combinatory behavior of these
-rules is like logical B<AND>
+If the rule test returns true access is not allowed or denied. Instead the
+next rule in the chain will be checked - in this sense the combinatory 
+behavior of these rules is like logical B<AND>.
 
 =item acl_add_rule $path, $rule, [ $filter ]
 
-Manually add a rule to all the actions under C<$path> using the more flexible (but
-more verbose) method:
+Manually add a rule to all the actions under C<$path> using the more flexible 
+(but more verbose) method:
 
 	__PACKAGE__->acl_add_rule(
 		"/foo",
@@ -174,7 +178,7 @@ $c.
 The default filter will skip all actions starting with an underscore, namely
 C<_DISPATCH>, C<_AUTO>, etc (but not C<auto>, C<begin>, et al).
 
-=item RULE EVALUATION
+=head1 RULE EVALUATION
 
 When a rule is attached to an action the "distance" from the path it was
 specified in is recorded. The closer the path is to the rule, the earlier it
@@ -183,9 +187,9 @@ will be checked.
 Any rule can either explicitly deny or explicitly allow access to a particular
 action. If a rule does not explicitly allow or permit access, the next rule is
 checked, until the list of rules is finished. If no rule has determined a
-policy, action to the controller will be permitted.
+policy, access to the path will be permitted.
 
-=item PATHS
+=head1 PATHS
 
 To apply a rule to an action or group of actions you must supply a path.
 
@@ -193,14 +197,16 @@ This path is what you should see dumped at the begining of the L<Catalyst>
 server's debug output.
 
 For example, for the C<foo> action defined at the root level of your
-applycation, specify C</foo>. Under the C<Moose> controller (e.g.
+application, specify C</foo>. Under the C<Moose> controller (e.g.
 C<MyApp::C::Moose>, the action C<bar> will be C</moose/bar>).
 
 The "distance" a path has from an action that is contained in it is the the
 difference in the number of slashes between the path of the action, and the
 path to which the rule was applied.
 
-=item EASY RULES
+=head1 RULES
+
+=head2 EASY RULES
 
 There are several kinds of rules you can create without using the complex
 interface described in L</FLEXIBLE RULES>.
@@ -235,11 +241,11 @@ objects. The boolean return value will determine the behavior of the rule.
 	__PACKAGE__->deny_access_unless( "/moose", "method_name" );
 
 When specifying a method name the rule engine ensures that it can be invoked
-uising L<UNIVERSAL/can>.
+using L<UNIVERSAL/can>.
 
 =back
 
-=item FLEXIBLE RULES
+=head2 FLEXIBLE RULES
 
 These rules are the most annoying to write but provide the most flexibility.
 
@@ -248,11 +254,12 @@ C<$Catalyst::Plugin::Authorization::ACL::Engine::DENIED>, and
 C<$Catalyst::Plugin::Authorization::ACL::Engine::ALLOWED> (these can be
 imported from the engine module).
 
-If no rule decided to explicitly allow or disallow access, access will be
+If no rule decides to explicitly allow or deny access, access will be
 permitted.
 
-Here is a rule that will always end the rule list by either explicitly allowing
-or denying access based on how much mojo the current user has:
+Here is a rule that will always break out of rule processing by either 
+explicitly allowing or denying access based on how much mojo the current 
+user has:
 
 	__PACKAGE__->acl_add_rule(
 		"/foo",
@@ -274,8 +281,9 @@ L<Catalyst::Plugin::Authentication>, L<Catalyst::Plugin::Authorization::Roles>
 =head1 AUTHOR
 
 Yuval Kogman, C<nothingmuch@woobling.org>
+Jess Robinson
 
-=head1 COPYRIGHT & LICNESE
+=head1 COPYRIGHT & LICENCE
 
 	Copyright (c) 2005 the aforementioned authors. All rights
 	reserved. This program is free software; you can redistribute

@@ -13,8 +13,6 @@ my $build = Module::Build->new(
         'Class::Throwable'                         => 0,
         'Tree::Simple::Visitor::FindByPath'        => 0,
         'Tree::Simple::Visitor::GetAllDescendents' => 0,
-
-        'Test::Plan' => 0,
     },
     create_readme => 1,
     sign          => 1,

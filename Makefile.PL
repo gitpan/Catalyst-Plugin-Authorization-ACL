@@ -8,7 +8,6 @@ WriteMakefile
                            'Catalyst' => '5.49',
                            'Class::Data::Inheritable' => '0',
                            'Class::Throwable' => '0',
-                           'Test::Plan' => '0',
                            'Tree::Simple::Visitor::FindByPath' => '0',
                            'Tree::Simple::Visitor::GetAllDescendents' => '0'
                          },
