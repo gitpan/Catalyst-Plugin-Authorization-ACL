@@ -11,7 +11,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 sub execute {
     my ( $c, $class, $action ) = @_;

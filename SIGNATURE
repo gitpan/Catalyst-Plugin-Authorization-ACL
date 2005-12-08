@@ -15,14 +15,14 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 bd6c0266d02ffd5cd702ae8ae5e079d59cdc89ff Build.PL
-SHA1 ce0ab0fc361d4b9f07799a409b51f71bbac71aff Changes
+SHA1 f6d45b32d85efcdc2b0e6be24b4a9dd60ae80988 Changes
 SHA1 93941f678d77f59d1d468bbcb0fea493c0ecd407 MANIFEST
-SHA1 154cdd3946db02da9144b1008747412f227dca83 META.yml
+SHA1 5dc271b03adf6d1bb713383b459c94821b1542f0 META.yml
 SHA1 94fcdae6c0aaa7b11985040dc17ef7251283496c Makefile.PL
 SHA1 9311775becf097771efc75e32686991bf82d360d README
-SHA1 c25a633327fc3b77aba0fcca972bdc26e5f28586 lib/Catalyst/Plugin/Authorization/ACL.pm
-SHA1 cb7a97f40e9df657caf54d7d8f2214c80245034d lib/Catalyst/Plugin/Authorization/ACL/Engine.pm
-SHA1 64a9c5835db575354e4d820cf220df7a4dbae32c t/lib/ACLTestApp.pm
+SHA1 be93180fe0bf253f2a338a3e8d708e9aab709c70 lib/Catalyst/Plugin/Authorization/ACL.pm
+SHA1 98380d92c5c3ed76a2017d9a8aaa90bffb433072 lib/Catalyst/Plugin/Authorization/ACL/Engine.pm
+SHA1 d58dace4d5af598fdc2abab77d00c112b306a7b7 t/lib/ACLTestApp.pm
 SHA1 07e57256682d9c49a8154d4c8685f4c59b33c168 t/lib/ACLTestApp/C/Auth.pm
 SHA1 9df013a4ae447bfcd3569f597a5ec312acb90395 t/lib/ACLTestApp/C/LionCage.pm
 SHA1 69a8dcb38e8df068dbdfc7a098c1a7e14afce710 t/lib/ACLTestApp/C/Zoo.pm
@@ -31,7 +31,7 @@ SHA1 ee75f1da7a0e3a35c3fb659ae4d251c92d0eeaba t/live_app.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFDk01dVCwRwOvSdBgRAqcxAKDB4n9rlvS8jDaBA28LYL/Xzcc+hgCeKwMS
-ryJehAbZbIr1GQd/8gNIc1w=
-=K67i
+iD8DBQFDl+vLVCwRwOvSdBgRAun1AJsGfA39vKpQQJstiVca+iXbUHA1fQCdEy52
+f7WqL6cPBDlXyHniw5bqUoU=
+=/Xyp
 -----END PGP SIGNATURE-----

@@ -55,6 +55,8 @@ __PACKAGE__->config->{authentication}{users} = {
 
 __PACKAGE__->setup;
 
+__PACKAGE__->allow_access_if("/", sub { 1 }); # just to test that / can be applied to
+
 __PACKAGE__->deny_access_unless("/lioncage", [qw/zoo_worker lion_tamer/]); # only highly trained personnel can enter
 
 __PACKAGE__->deny_access_unless("/restricted", sub { 0 }); # no one can access
