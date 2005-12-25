@@ -6,64 +6,119 @@ use base qw/Class::Data::Inheritable/;
 use strict;
 use warnings;
 
+use NEXT;
 use Scalar::Util ();
 use Catalyst::Plugin::Authorization::ACL::Engine;
 
+# TODO
+# refactor forcibly_allow_access so that the guts are cleaner
+
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = "0.04";
+our $VERSION = "0.05";
+
+my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
 sub execute {
     my ( $c, $class, $action ) = @_;
 
-	local $NEXT::NEXT{$c, "execute"};
+    local $NEXT::NEXT{ $c, "execute" };
 
-    if ( Scalar::Util::blessed($action) ) {
-		eval { $c->_acl_engine->check_action_rules( $c, $action ) };
+    if (    Scalar::Util::blessed($action)
+        and $action->name ne "access_denied"
+        and $action->name ne "ACL error rethrower" )
+    {
+        eval { $c->_acl_engine->check_action_rules( $c, $action ) };
 
-		if ( my $err = $@ ) {
-			return $c->acl_access_denied( $class, $action, $err );
-		} else {
-			$c->acl_access_allowed( $class, $action );
-		}
-		
+        if ( my $err = $@ ) {
+            my $force_allow = $c->acl_access_denied( $class, $action, $err );
+            return unless $force_allow;
+        }
+        else {
+            $c->acl_access_allowed( $class, $action );
+        }
+
     }
 
     $c->NEXT::execute( $class, $action );
 }
 
+sub acl_allow_root_internals {
+    my $app = shift;
+    $app->allow_access_if( "/$_", sub { 1 } )
+      for grep { $app->can($_) } qw/begin auto end/;
+}
+
 sub setup {
     my $app = shift;
-    my $ret = $app->NEXT::setup( @_ );
+    my $ret = $app->NEXT::setup(@_);
 
-    $app->_acl_engine( Catalyst::Plugin::Authorization::ACL::Engine->new($app) );
-    
+    $app->_acl_engine(
+        Catalyst::Plugin::Authorization::ACL::Engine->new($app) );
+
     $ret;
 }
 
 sub deny_access_unless {
     my $c = shift;
-    $c->_acl_engine->add_deny( @_ );
+    $c->_acl_engine->add_deny(@_);
+}
+
+sub deny_access {
+    my $c = shift;
+    $c->deny_access_unless( @_, undef );
 }
 
 sub allow_access_if {
     my $c = shift;
-    $c->_acl_engine->add_allow( @_ );
+    $c->_acl_engine->add_allow(@_);
+}
+
+sub allow_access {
+    my $c = shift;
+    $c->allow_access_if( @_, 1 );
 }
 
 sub acl_add_rule {
     my $c = shift;
-    $c->_acl_engine->add_rule( @_ );
+    $c->_acl_engine->add_rule(@_);
 }
 
 sub acl_access_denied {
-	my ( $c, $class, $action, $err ) = @_;
-	
-	if ( my $handler = ( $c->get_actions( "access_denied" , $action->namespace ) )[-1] ) {
-		$handler->execute( $c );
-	} else {
-		return $c->execute( $class, sub { die $err });
-	}
+    my ( $c, $class, $action, $err ) = @_;
+
+    if ( my $handler =
+        ( $c->get_actions( "access_denied", $action->namespace ) )[-1] )
+    {
+        local @{ $c->req->args } = ( $action, $err );
+        local $c->{_acl_forcibly_allowed} = undef;
+
+        eval { $handler->execute($c) };
+
+        return 1 if $c->{_acl_forcibly_allowed};
+        
+        die $@ || $Catalyst::DETACH;
+    }
+    else {
+        $c->execute(
+            $class,
+            bless(
+                {
+                    code => sub { die $err },
+                    name => "ACL error rethrower",
+                },
+                "Catalyst::Action"
+            ),
+        );
+
+        return;
+    }
+}
+
+sub forcibly_allow_access {
+    my $c = shift;
+    $c->{_acl_forcibly_allowed} = 1;
+    die $Catalyst::DETACH;
 }
 
 sub acl_access_allowed {
@@ -134,7 +189,7 @@ continues until a rule explcitly allows or denies access.
 
 =head1 METHODS
 
-=item allow_access_if $path, $rule
+=head2 allow_access_if $path, $rule
 
 Check the rule condition and allow access to the actions under C<$path> if
 the rule returns true.
@@ -146,7 +201,7 @@ If the rule test returns false access is not denied or allowed. Instead
 the next rule in the chain will be checked - in this sense the combinatory 
 behavior of these rules is like logical B<OR>.
 
-=item deny_access_unless $path, $rule
+=head2 deny_access_unless $path, $rule
 
 Check the rule condition and disallow access if the rule returns false.
 
@@ -157,7 +212,13 @@ If the rule test returns true access is not allowed or denied. Instead the
 next rule in the chain will be checked - in this sense the combinatory 
 behavior of these rules is like logical B<AND>.
 
-=item acl_add_rule $path, $rule, [ $filter ]
+=head2 allow_access $path
+
+=head2 deny_access $path
+
+Unconditionally allow or deny access to a path.
+
+=head2 acl_add_rule $path, $rule, [ $filter ]
 
 Manually add a rule to all the actions under C<$path> using the more flexible 
 (but more verbose) method:
@@ -177,6 +238,26 @@ $c.
 
 The default filter will skip all actions starting with an underscore, namely
 C<_DISPATCH>, C<_AUTO>, etc (but not C<auto>, C<begin>, et al).
+
+=head2 acl_access_denied $c, $class, $action, $err
+
+=head2 acl_access_allowed $c, $class, $action
+
+The default event handlers for access denied or allowed conditions. See below
+on handling access violations.
+
+=head2 acl_allow_root_internals
+
+Adds rules that permit access to the root controller (YourApp.pm) C<auto>,
+C<begin> and C<end> unconditionally.
+
+=head1 EXTENDED METHODS
+
+=head2 execute
+
+The hook for rule evaluation
+
+=head2 setup
 
 =head1 RULE EVALUATION
 
@@ -206,7 +287,7 @@ path to which the rule was applied.
 
 =head1 RULES
 
-=head2 EASY RULES
+=head2 Easy Rules
 
 There are several kinds of rules you can create without using the complex
 interface described in L</FLEXIBLE RULES>.
@@ -243,9 +324,14 @@ objects. The boolean return value will determine the behavior of the rule.
 When specifying a method name the rule engine ensures that it can be invoked
 using L<UNIVERSAL/can>.
 
+=item Constant
+
+You can use C<undef>, C<0> and C<''> to use as a constant false predicate, or
+C<1> to use as a constant true predicate.
+
 =back
 
-=head2 FLEXIBLE RULES
+=head2 Flexible Rules
 
 These rules are the most annoying to write but provide the most flexibility.
 
@@ -265,7 +351,7 @@ user has:
 		"/foo",
 		sub {
 			my ( $c, $action ) = @_;	
-			
+
 			if ( $c->user->mojo > 50 ) {
 				die $ALLOWED;
 			} else {
@@ -274,9 +360,81 @@ user has:
 		}
 	);
 
+=head1 HANDLING DENIAL
+
+There are two plugin methods that can be called when a rule makes a decision
+about an action:
+
+=over 4
+
+=item acl_access_allowed
+
+A no-op
+
+=item acl_access_denied
+
+Looks for a private action named C<access_denied> from the denied action's
+controller and outwards (much like C<auto>), and if none is found throws an
+access denied exception.
+
+=back
+
+This means that you have several alternatives:
+
+=head2 Provide an C<access_denied> action
+
+    package MyApp::Controller::Foo;
+
+    sub access_denied : Private {
+        my ( $self, $c, $action ) = @_;
+
+        ...
+
+    }
+
+Note that after this private action is finished B<EXECUTION RESUMES NORMALLY>!
+You B<absolutely must> throw a C<$Catalyst::DETACH> error, or detach to some
+other action.
+
+In the future it may be an on-by-default configuration option to always detach
+after access_denied for security reliability reasons.
+
+=head2 Cleanup in C<end>
+
+    sub end : Private {
+        my ( $self, $c ) = @_;
+
+        if ( $c->error and $c->error->[-1] eq "access denied" ) {
+            $c->error(0); # clear the error
+            
+            # access denied
+        } else {
+            # normal end
+        }
+    }
+
+=head2 Override the plugin event handler methods
+
+    package MyApp;
+
+    sub acl_access_allowed {
+        my ( $c, $class, $action ) = @_;
+        ...
+    }
+
+    sub acl_access_denied {
+        my ( $c, $class, $action, $err ) = @_;
+        ...
+    }
+
+C<$class> is the controller class the C<$action> object was going to be
+executed in, and C<$err> is the exception cought during rule evaluation, if
+any (access is denied if a rule raises an exception).
+
 =head1 SEE ALSO
 
-L<Catalyst::Plugin::Authentication>, L<Catalyst::Plugin::Authorization::Roles>
+L<Catalyst::Plugin::Authentication>, L<Catalyst::Plugin::Authorization::Roles>,
+L<http://catalyst.perl.org/calendar/2005/24>
 
 =head1 AUTHOR
 

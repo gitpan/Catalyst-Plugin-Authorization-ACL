@@ -52,7 +52,7 @@ DESCRIPTION
     Testing continues until a rule explcitly allows or denies access.
 
 METHODS
-    allow_access_if $path, $rule
+  allow_access_if $path, $rule
     Check the rule condition and allow access to the actions under $path if
     the rule returns true.
 
@@ -63,7 +63,7 @@ METHODS
     the next rule in the chain will be checked - in this sense the
     combinatory behavior of these rules is like logical OR.
 
-    deny_access_unless $path, $rule
+  deny_access_unless $path, $rule
     Check the rule condition and disallow access if the rule returns false.
 
     This is normally useful to restrict access to any portion of the
@@ -73,7 +73,11 @@ METHODS
     the next rule in the chain will be checked - in this sense the
     combinatory behavior of these rules is like logical AND.
 
-    acl_add_rule $path, $rule, [ $filter ]
+  allow_access $path
+  deny_access $path
+    Unconditionally allow or deny access to a path.
+
+  acl_add_rule $path, $rule, [ $filter ]
     Manually add a rule to all the actions under $path using the more
     flexible (but more verbose) method:
 
@@ -93,6 +97,20 @@ METHODS
     The default filter will skip all actions starting with an underscore,
     namely "_DISPATCH", "_AUTO", etc (but not "auto", "begin", et al).
 
+  acl_access_denied $c, $class, $action, $err
+  acl_access_allowed $c, $class, $action
+    The default event handlers for access denied or allowed conditions. See
+    below on handling access violations.
+
+  acl_allow_root_internals
+    Adds rules that permit access to the root controller (YourApp.pm)
+    "auto", "begin" and "end" unconditionally.
+
+EXTENDED METHODS
+  execute
+    The hook for rule evaluation
+
+  setup
 RULE EVALUATION
     When a rule is attached to an action the "distance" from the path it was
     specified in is recorded. The closer the path is to the rule, the
@@ -118,7 +136,7 @@ PATHS
     and the path to which the rule was applied.
 
 RULES
-  EASY RULES
+  Easy Rules
     There are several kinds of rules you can create without using the
     complex interface described in "FLEXIBLE RULES".
 
@@ -152,7 +170,11 @@ RULES
         When specifying a method name the rule engine ensures that it can be
         invoked using "can" in UNIVERSAL.
 
-  FLEXIBLE RULES
+    Constant
+        You can use "undef", 0 and '' to use as a constant false predicate,
+        or 1 to use as a constant true predicate.
+
+  Flexible Rules
     These rules are the most annoying to write but provide the most
     flexibility.
 
@@ -172,7 +194,7 @@ RULES
                     "/foo",
                     sub {
                             my ( $c, $action ) = @_;        
-                        
+
                             if ( $c->user->mojo > 50 ) {
                                     die $ALLOWED;
                             } else {
@@ -181,8 +203,71 @@ RULES
                     }
             );
 
+HANDLING DENIAL
+    There are two plugin methods that can be called when a rule makes a
+    decision about an action:
+
+    acl_access_allowed
+        A no-op
+
+    acl_access_denied
+        Looks for a private action named "access_denied" from the denied
+        action's controller and outwards (much like "auto"), and if none is
+        found throws an access denied exception.
+
+    This means that you have several alternatives:
+
+  Provide an "access_denied" action
+        package MyApp::Controller::Foo;
+
+        sub access_denied : Private {
+            my ( $self, $c, $action ) = @_;
+
+            ...
+
+        }
+
+    Note that after this private action is finished EXECUTION RESUMES
+    NORMALLY! You absolutely must throw a $Catalyst::DETACH error, or detach
+    to some other action.
+
+    In the future it may be an on-by-default configuration option to always
+    detach after access_denied for security reliability reasons.
+
+  Cleanup in "end"
+        sub end : Private {
+            my ( $self, $c ) = @_;
+
+            if ( $c->error and $c->error->[-1] eq "access denied" ) {
+                $c->error(0); # clear the error
+            
+                # access denied
+            } else {
+                # normal end
+            }
+        }
+
+  Override the plugin event handler methods
+        package MyApp;
+
+        sub acl_access_allowed {
+            my ( $c, $class, $action ) = @_;
+            ...
+        }
+
+        sub acl_access_denied {
+            my ( $c, $class, $action, $err ) = @_;
+            ...
+        }
+
+    $class is the controller class the $action object was going to be
+    executed in, and $err is the exception cought during rule evaluation, if
+    any (access is denied if a rule raises an exception).
+
 SEE ALSO
-    Catalyst::Plugin::Authentication, Catalyst::Plugin::Authorization::Roles
+    Catalyst::Plugin::Authentication,
+    Catalyst::Plugin::Authorization::Roles,
+    <http://catalyst.perl.org/calendar/2005/24>
 
 AUTHOR
     Yuval Kogman, "nothingmuch@woobling.org" Jess Robinson
