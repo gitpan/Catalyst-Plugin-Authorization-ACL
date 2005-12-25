@@ -1,5 +1,13 @@
 Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
 
+0.06    2005-12-25 20:37:00
+        - Added forcibly_allow_access, proper denial handling
+        - allow for constant conditions
+        - i think there was something else
+
+0.05    2005-12-25 20:37:00
+        - Forgot to changelog this release ;-)
+
 0.04    2005-12-08 10:15:00
         - Fix a bug with ACLs on "/"
 

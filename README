@@ -215,6 +215,10 @@ HANDLING DENIAL
         action's controller and outwards (much like "auto"), and if none is
         found throws an access denied exception.
 
+    forcibly_allow_access
+        Within an "access_denied" action this will immediately cause the
+        blocked action to be executed anyway.
+
     This means that you have several alternatives:
 
   Provide an "access_denied" action
@@ -224,15 +228,14 @@ HANDLING DENIAL
             my ( $self, $c, $action ) = @_;
 
             ...
+            $c->forcibly_allow_access
+                if $you->mean_it eq "really";
 
         }
 
-    Note that after this private action is finished EXECUTION RESUMES
-    NORMALLY! You absolutely must throw a $Catalyst::DETACH error, or detach
-    to some other action.
-
-    In the future it may be an on-by-default configuration option to always
-    detach after access_denied for security reliability reasons.
+    If you call "forcibly_allow_access" then the blocked action will be
+    immediately unblocked. Otherwise the execution of the action will cease,
+    and return to it's caller or end.
 
   Cleanup in "end"
         sub end : Private {

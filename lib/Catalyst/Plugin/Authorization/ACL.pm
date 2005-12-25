@@ -15,7 +15,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = "0.05";
+our $VERSION = "0.06";
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
@@ -377,6 +377,11 @@ Looks for a private action named C<access_denied> from the denied action's
 controller and outwards (much like C<auto>), and if none is found throws an
 access denied exception.
 
+=item forcibly_allow_access
+
+Within an C<access_denied> action this will immediately cause the blocked
+action to be executed anyway.
+
 =back
 
 This means that you have several alternatives:
@@ -389,15 +394,14 @@ This means that you have several alternatives:
         my ( $self, $c, $action ) = @_;
 
         ...
+        $c->forcibly_allow_access
+            if $you->mean_it eq "really";
 
     }
 
-Note that after this private action is finished B<EXECUTION RESUMES NORMALLY>!
-You B<absolutely must> throw a C<$Catalyst::DETACH> error, or detach to some
-other action.
-
-In the future it may be an on-by-default configuration option to always detach
-after access_denied for security reliability reasons.
+If you call C<forcibly_allow_access> then the blocked action will be
+immediately unblocked. Otherwise the execution of the action will cease, and
+return to it's caller or end.
 
 =head2 Cleanup in C<end>
 
