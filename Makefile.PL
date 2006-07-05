@@ -12,6 +12,7 @@ WriteMakefile
                            'Tree::Simple::Visitor::GetAllDescendents' => '0'
                          },
           'INSTALLDIRS' => 'site',
+          'EXE_FILES' => [],
           'PL_FILES' => {}
         )
 ;

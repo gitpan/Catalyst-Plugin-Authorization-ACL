@@ -16,7 +16,7 @@ SYNOPSIS
                     [qw/nice_role/],
             );
 
-            __PACKAGE__>allow_access_if(
+            __PACKAGE__->allow_access_if(
                     "/foo/bar/gorch",
                     sub { return $boolean },
             );
@@ -110,7 +110,7 @@ EXTENDED METHODS
   execute
     The hook for rule evaluation
 
-  setup
+  setup_actions
 RULE EVALUATION
     When a rule is attached to an action the "distance" from the path it was
     specified in is recorded. The closer the path is to the rule, the
@@ -243,8 +243,8 @@ HANDLING DENIAL
 
             if ( $c->error and $c->error->[-1] eq "access denied" ) {
                 $c->error(0); # clear the error
-            
-                # access denied
+                
+            # access denied
             } else {
                 # normal end
             }
@@ -273,7 +273,9 @@ SEE ALSO
     <http://catalyst.perl.org/calendar/2005/24>
 
 AUTHOR
-    Yuval Kogman, "nothingmuch@woobling.org" Jess Robinson
+    Yuval Kogman, "nothingmuch@woobling.org"
+
+    Jess Robinson
 
 COPYRIGHT & LICENCE
             Copyright (c) 2005 the aforementioned authors. All rights

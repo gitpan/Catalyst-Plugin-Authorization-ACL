@@ -15,7 +15,7 @@ my $build = Module::Build->new(
         'Tree::Simple::Visitor::GetAllDescendents' => 0,
     },
     create_readme => 1,
-    sign          => 1,
+#    sign          => 1,
 );
 $build->create_build_script;
 

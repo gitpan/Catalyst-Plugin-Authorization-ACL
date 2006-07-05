@@ -15,7 +15,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = "0.06";
+our $VERSION = "0.07";
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
@@ -44,17 +44,34 @@ sub execute {
 }
 
 sub acl_allow_root_internals {
-    my $app = shift;
+    my ( $app, $cmp ) = @_;
     $app->allow_access_if( "/$_", sub { 1 } )
       for grep { $app->can($_) } qw/begin auto end/;
 }
 
-sub setup {
+sub setup_actions {
     my $app = shift;
-    my $ret = $app->NEXT::setup(@_);
+    my $ret = $app->NEXT::setup_actions(@_);
 
     $app->_acl_engine(
         Catalyst::Plugin::Authorization::ACL::Engine->new($app) );
+
+    if ( my $config = $app->config->{acl} ) {
+        foreach my $action ( qw/allow deny/ ) {
+            my $method = "${action}_access";
+            if ( my $paths = $config->{$action} ) {
+                $app->$method( $_ ) for @$paths;
+            }
+
+            my $cond = ( $action eq "allow" ? "if" : "unless" );
+            $method .= "_$cond";
+
+            if ( my $args = $config->{"${action}_$cond"} ) {
+                my ( $cond, @paths ) = @$args;
+                $app->$method( $cond, $_ ) for @paths;
+            }
+        }
+    }
 
     $ret;
 }
@@ -93,7 +110,7 @@ sub acl_access_denied {
         local @{ $c->req->args } = ( $action, $err );
         local $c->{_acl_forcibly_allowed} = undef;
 
-        eval { $handler->execute($c) };
+        eval { $c->execute($class, $handler) };
 
         return 1 if $c->{_acl_forcibly_allowed};
         
@@ -150,7 +167,7 @@ Catalyst::Plugin::Authorization::ACL - ACL support for L<Catalyst> applications.
 		[qw/nice_role/],
 	);
 
-	__PACKAGE__>allow_access_if(
+	__PACKAGE__->allow_access_if(
 		"/foo/bar/gorch",
 		sub { return $boolean },
 	);
@@ -257,7 +274,7 @@ C<begin> and C<end> unconditionally.
 
 The hook for rule evaluation
 
-=head2 setup
+=head2 setup_actions
 
 =head1 RULE EVALUATION
 
@@ -443,6 +460,7 @@ L<http://catalyst.perl.org/calendar/2005/24>
 =head1 AUTHOR
 
 Yuval Kogman, C<nothingmuch@woobling.org>
+
 Jess Robinson
 
 =head1 COPYRIGHT & LICENCE
