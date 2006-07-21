@@ -1,0 +1,42 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.54.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 c458ef24cdaac2cd6790a5ccb357a9d5e9e3e93a Build.PL
+SHA1 3253953c63d44ac7089839846f07a0b5b5451b0c Changes
+SHA1 3745dc78e6e2c8c3c2bd0e3a231d063bf58b6cc9 MANIFEST
+SHA1 5c30c03dfda5f018c6def6e84dd02926a928d2c2 META.yml
+SHA1 25e9b002e46546be1f5345144e68c4a03f1c03fa Makefile.PL
+SHA1 0ca7d8bc56ba82f5b21fa17ab716ec54c7d7ed53 README
+SHA1 92f7c63ac81fab29960dcd23f7c97b926e817028 lib/Catalyst/Plugin/Authorization/ACL.pm
+SHA1 ec765971983392c5e50d0c84c0f69bbf89a35b0c lib/Catalyst/Plugin/Authorization/ACL/Engine.pm
+SHA1 17e4ecf58b3ec0e210f0652042d7cb8a622c5743 t/01use.t
+SHA1 86d255a7c9f065a13049108362c949b3e35a4c24 t/02pod.t
+SHA1 e923679a1bbd8eb8f727e46f5906af25de27ec97 t/03podcoverage.t
+SHA1 1d94b42fc97eadeec01d6cf37f1628afe74f6904 t/lib/ACLTestApp.pm
+SHA1 07e57256682d9c49a8154d4c8685f4c59b33c168 t/lib/ACLTestApp/C/Auth.pm
+SHA1 9df013a4ae447bfcd3569f597a5ec312acb90395 t/lib/ACLTestApp/C/LionCage.pm
+SHA1 69a8dcb38e8df068dbdfc7a098c1a7e14afce710 t/lib/ACLTestApp/C/Zoo.pm
+SHA1 cb4133ac755233cd19a9e9f03432ee6ec36be762 t/lib/ACLTestApp/C/Zoo/Penguins.pm
+SHA1 dacbd480a828ef155edff4f02e0e43160565a490 t/lib/ACLTestApp2.pm
+SHA1 ee75f1da7a0e3a35c3fb659ae4d251c92d0eeaba t/live_app.t
+SHA1 8fa3118c7d5773e8e6fed60b57f4b7edfe843368 t/more_live_app.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (Darwin)
+
+iD8DBQFEwQkkVCwRwOvSdBgRAp1uAJ9snKpJwC1kl+Az2ZyTs/cr1vU+twCaAwJp
+cmkI7QE68k8PQ3exX9ka3Dk=
+=46/U
+-----END PGP SIGNATURE-----

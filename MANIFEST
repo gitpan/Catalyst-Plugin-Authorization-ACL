@@ -17,3 +17,4 @@ t/lib/ACLTestApp/C/Zoo/Penguins.pm
 t/lib/ACLTestApp2.pm
 t/live_app.t
 t/more_live_app.t
+SIGNATURE    Added here by Module::Build

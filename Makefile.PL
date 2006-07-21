@@ -5,7 +5,7 @@ WriteMakefile
           'NAME' => 'Catalyst::Plugin::Authorization::ACL',
           'VERSION_FROM' => 'lib/Catalyst/Plugin/Authorization/ACL.pm',
           'PREREQ_PM' => {
-                           'Catalyst' => '5.49',
+                           'Catalyst' => '5.7',
                            'Class::Data::Inheritable' => '0',
                            'Class::Throwable' => '0',
                            'Tree::Simple::Visitor::FindByPath' => '0',

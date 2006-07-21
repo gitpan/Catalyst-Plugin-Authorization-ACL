@@ -6,7 +6,7 @@ my $build = Module::Build->new(
     license            => 'perl',
     module_name        => 'Catalyst::Plugin::Authorization::ACL',
     requires           => {
-        'Catalyst' => '5.49',
+        'Catalyst' => '5.7',
 
         'Class::Data::Inheritable' => 0,
 
@@ -15,7 +15,7 @@ my $build = Module::Build->new(
         'Tree::Simple::Visitor::GetAllDescendents' => 0,
     },
     create_readme => 1,
-#    sign          => 1,
+    sign          => 1,
 );
 $build->create_build_script;
 

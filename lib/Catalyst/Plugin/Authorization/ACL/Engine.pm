@@ -193,24 +193,34 @@ sub check_action_rules {
     my ( $self, $c, $action ) = @_;
 
     my $last_rule;
-    eval {
-        foreach my $rule ( $self->get_rules($action) )
-        {
-            $c->log->debug( "running ACL rule $rule defined at "
-                  . $self->get_cxt_for_rule($rule)
-                  . " on $action" )
-              if $c->debug;
-            $last_rule = $rule;
-            $c->$rule($action);
-        }
-    };
 
-    if ($@) {
-        if ( ref $@ and $@ == $DENIED ) {
+    my $rule_exception;
+
+    {
+        local $SIG{__DIE__}; # nobody messes with us!
+        local $@;
+
+        eval {
+            foreach my $rule ( $self->get_rules($action) )
+            {
+                $c->log->debug( "running ACL rule $rule defined at "
+                      . $self->get_cxt_for_rule($rule)
+                      . " on $action" )
+                  if $c->debug;
+                $last_rule = $rule;
+                $c->$rule($action);
+            }
+        };
+
+        $rule_exception = $@;
+    }
+
+    if ($rule_exception) {
+        if ( ref $rule_exception and $rule_exception == $DENIED ) {
             die "Access to $action denied by rule $last_rule (defined at "
               . $self->get_cxt_for_rule($last_rule) . ").\n";
         }
-        elsif ( ref $@ and $@ == $ALLOWED ) {
+        elsif ( ref $rule_exception and $rule_exception == $ALLOWED ) {
             $c->log->debug(
                     "Access to $action allowed by rule $last_rule (defined at "
                   . $self->get_cxt_for_rule($last_rule)
@@ -224,7 +234,7 @@ sub check_action_rules {
             # FIXME - add context (the user should know what rule
             # generated the exception, and where it was added)
             Class::Throwable->throw(
-                "An error occurred while evaluating ACL rules.", $@ );
+                "An error occurred while evaluating ACL rules.", $rule_exception );
         }
     }
 
