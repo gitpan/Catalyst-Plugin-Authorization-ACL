@@ -1,6 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
 
-0.08    2006-07021 20:01:00
+0.09    2008-08-22
+        - fix the overwriting of $c->req->args for access_denied handlers
+
+0.08    2006-07-21 20:01:00
         - protect ACL::Engine from custom $SIG{__DIE__} handlers
 
 0.07    2006-07-05 23:15:27

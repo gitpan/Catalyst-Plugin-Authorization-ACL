@@ -29,7 +29,7 @@ DESCRIPTION
     The two hierarchies of actions and controllers in Catalyst are:
 
     Private Namespace
-        Every action has it's own private path. This path reflects the Perl
+        Every action has its own private path. This path reflects the Perl
         namespaces the actions were born in, and the namespaces of their
         controllers.
 
@@ -193,7 +193,7 @@ RULES
             __PACKAGE__->acl_add_rule(
                     "/foo",
                     sub {
-                            my ( $c, $action ) = @_;        
+                            my ( $c, $action ) = @_;
 
                             if ( $c->user->mojo > 50 ) {
                                     die $ALLOWED;
@@ -243,8 +243,8 @@ HANDLING DENIAL
 
             if ( $c->error and $c->error->[-1] eq "access denied" ) {
                 $c->error(0); # clear the error
-                
-            # access denied
+
+                # access denied
             } else {
                 # normal end
             }
@@ -272,13 +272,14 @@ SEE ALSO
     Catalyst::Plugin::Authorization::Roles,
     <http://catalyst.perl.org/calendar/2005/24>
 
-AUTHOR
-    Yuval Kogman, "nothingmuch@woobling.org"
+AUTHORS
+    Yuval Kogman <nothingmuch@woobling.org>
 
     Jess Robinson
 
-COPYRIGHT & LICENCE
-            Copyright (c) 2005 the aforementioned authors. All rights
-            reserved. This program is free software; you can redistribute
-            it and/or modify it under the same terms as Perl itself.
+COPYRIGHT & LICENSE
+    Copyright (c) 2008 the aforementioned authors.
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 

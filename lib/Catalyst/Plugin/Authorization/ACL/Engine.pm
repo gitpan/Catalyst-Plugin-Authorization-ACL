@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 package Catalyst::Plugin::Authorization::ACL::Engine;
 use base qw/Class::Accessor::Fast Exporter/;
 

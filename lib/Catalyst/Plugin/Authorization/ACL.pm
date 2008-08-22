@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 package Catalyst::Plugin::Authorization::ACL;
 use base qw/Class::Data::Inheritable/;
 
@@ -15,7 +13,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = "0.08";
+our $VERSION = '0.09';
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
@@ -45,8 +43,10 @@ sub execute {
 
 sub acl_allow_root_internals {
     my ( $app, $cmp ) = @_;
-    $app->allow_access_if( "/$_", sub { 1 } )
-      for grep { $app->can($_) } qw/begin auto end/;
+
+    foreach my $action ( qw/begin auto end/ ) {
+        $app->allow_access("/$action") if $app->get_action($action, "/");
+    }
 }
 
 sub setup_actions {
@@ -107,13 +107,12 @@ sub acl_access_denied {
     if ( my $handler =
         ( $c->get_actions( "access_denied", $action->namespace ) )[-1] )
     {
-        local @{ $c->req->args } = ( $action, $err );
         local $c->{_acl_forcibly_allowed} = undef;
 
-        eval { $c->execute($class, $handler) };
+        eval { $c->detach( $handler, [$action, $err] ) };
 
         return 1 if $c->{_acl_forcibly_allowed};
-        
+
         die $@ || $Catalyst::DETACH;
     }
     else {
@@ -150,7 +149,7 @@ __END__
 
 =head1 NAME
 
-Catalyst::Plugin::Authorization::ACL - ACL support for L<Catalyst> applications.
+Catalyst::Plugin::Authorization::ACL - ACL support for Catalyst applications.
 
 =head1 SYNOPSIS
 
@@ -174,8 +173,8 @@ Catalyst::Plugin::Authorization::ACL - ACL support for L<Catalyst> applications.
 
 =head1 DESCRIPTION
 
-This module provides Access Control List style path protection, with arbitrary 
-rules for L<Catalyst> applications. It operates only on the L<Catalyst> 
+This module provides Access Control List style path protection, with arbitrary
+rules for L<Catalyst> applications. It operates only on the L<Catalyst>
 private namespace, at least at the moment.
 
 The two hierarchies of actions and controllers in L<Catalyst> are:
@@ -184,7 +183,7 @@ The two hierarchies of actions and controllers in L<Catalyst> are:
 
 =item Private Namespace
 
-Every action has it's own private path. This path reflects the Perl namespaces
+Every action has its own private path. This path reflects the Perl namespaces
 the actions were born in, and the namespaces of their controllers.
 
 =item External Namespace
@@ -200,8 +199,8 @@ future extensions may be made to support external namespaces as well.
 
 Various types of rules are supported, see the list under L</RULES>.
 
-When a path is visited, rules are tested one after the other, with the most 
-exact rule fitting the path first, and continuing up the path. Testing 
+When a path is visited, rules are tested one after the other, with the most
+exact rule fitting the path first, and continuing up the path. Testing
 continues until a rule explcitly allows or denies access.
 
 =head1 METHODS
@@ -215,7 +214,7 @@ This is normally useful to allow acces only to a specific part of a tree whose
 parent has a C<deny_access_unless> clause attached to it.
 
 If the rule test returns false access is not denied or allowed. Instead
-the next rule in the chain will be checked - in this sense the combinatory 
+the next rule in the chain will be checked - in this sense the combinatory
 behavior of these rules is like logical B<OR>.
 
 =head2 deny_access_unless $path, $rule
@@ -226,7 +225,7 @@ This is normally useful to restrict access to any portion of the application
 unless a certain condition can be met.
 
 If the rule test returns true access is not allowed or denied. Instead the
-next rule in the chain will be checked - in this sense the combinatory 
+next rule in the chain will be checked - in this sense the combinatory
 behavior of these rules is like logical B<AND>.
 
 =head2 allow_access $path
@@ -237,7 +236,7 @@ Unconditionally allow or deny access to a path.
 
 =head2 acl_add_rule $path, $rule, [ $filter ]
 
-Manually add a rule to all the actions under C<$path> using the more flexible 
+Manually add a rule to all the actions under C<$path> using the more flexible
 (but more verbose) method:
 
 	__PACKAGE__->acl_add_rule(
@@ -360,14 +359,14 @@ imported from the engine module).
 If no rule decides to explicitly allow or deny access, access will be
 permitted.
 
-Here is a rule that will always break out of rule processing by either 
-explicitly allowing or denying access based on how much mojo the current 
+Here is a rule that will always break out of rule processing by either
+explicitly allowing or denying access based on how much mojo the current
 user has:
 
 	__PACKAGE__->acl_add_rule(
 		"/foo",
 		sub {
-			my ( $c, $action ) = @_;	
+			my ( $c, $action ) = @_;
 
 			if ( $c->user->mojo > 50 ) {
 				die $ALLOWED;
@@ -427,7 +426,7 @@ return to it's caller or end.
 
         if ( $c->error and $c->error->[-1] eq "access denied" ) {
             $c->error(0); # clear the error
-            
+
             # access denied
         } else {
             # normal end
@@ -457,18 +456,17 @@ any (access is denied if a rule raises an exception).
 L<Catalyst::Plugin::Authentication>, L<Catalyst::Plugin::Authorization::Roles>,
 L<http://catalyst.perl.org/calendar/2005/24>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Yuval Kogman, C<nothingmuch@woobling.org>
+Yuval Kogman E<lt>nothingmuch@woobling.orgE<gt>
 
 Jess Robinson
 
-=head1 COPYRIGHT & LICENCE
+=head1 COPYRIGHT & LICENSE
 
-	Copyright (c) 2005 the aforementioned authors. All rights
-	reserved. This program is free software; you can redistribute
-	it and/or modify it under the same terms as Perl itself.
+Copyright (c) 2008 the aforementioned authors.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
 
 =cut
-
-
