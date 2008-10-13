@@ -30,10 +30,16 @@ sub default : Private {
 	
 }
 
+sub access_denied : Private {
+    my ( $self, $c ) = @_;
+    $c->res->body($c->res->body . 'denied');
+}
+
 sub end : Private {
-	my ( $self, $c ) = @_;
-	$c->res->body( $c->res->body . ($c->error->[-1] =~ /denied/ ? "denied" : "allowed") );
-	$c->error( 0 );
+    my ( $self, $c ) = @_;
+    if ($c->res->body !~ /denied/) {
+        $c->res->body($c->res->body . 'allowed');
+    }
 }
 
 __PACKAGE__->config(

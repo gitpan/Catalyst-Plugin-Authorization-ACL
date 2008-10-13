@@ -13,7 +13,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
@@ -104,12 +104,16 @@ sub acl_add_rule {
 sub acl_access_denied {
     my ( $c, $class, $action, $err ) = @_;
 
+    my $namespace = $action->namespace;
+
     if ( my $handler =
-        ( $c->get_actions( "access_denied", $action->namespace ) )[-1] )
+        ( $c->get_actions( "access_denied", $namespace ) )[-1] )
     {
         local $c->{_acl_forcibly_allowed} = undef;
 
-        eval { $c->detach( $handler, [$action, $err] ) };
+        (my $path = $handler->reverse) =~ s!^/?!/!;
+
+        eval { $c->detach( $path, [$action, $err] ) };
 
         return 1 if $c->{_acl_forcibly_allowed};
 

@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
 
+0.10    2008-10-13
+        - fix access_denied action support
+
 0.09    2008-08-22
         - fix the overwriting of $c->req->args for access_denied handlers
 
