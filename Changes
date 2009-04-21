@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
 
+0.11    2009-04-21
+        - switch from NEXT to MRO::Compat
+
 0.10    2008-10-13
         - fix access_denied action support
 

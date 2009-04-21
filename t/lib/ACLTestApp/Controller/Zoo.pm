@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package ACLTestApp::C::Zoo;
+package ACLTestApp::Controller::Zoo;
 use base qw/Catalyst::Controller/;
 
 use strict;
@@ -29,11 +29,11 @@ __END__
 
 =head1 NAME
 
-ACLTestApp::C::Zoo - 
+ACLTestApp::Controller::Zoo - 
 
 =head1 SYNOPSIS
 
-	use ACLTestApp::C::Zoo;
+	use ACLTestApp::Controller::Zoo;
 
 =head1 DESCRIPTION
 

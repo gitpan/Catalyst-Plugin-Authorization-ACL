@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package ACLTestApp::C::Auth;
+package ACLTestApp::Controller::Auth;
 use base qw/Catalyst::Controller/;
 
 use strict;
@@ -30,11 +30,11 @@ __END__
 
 =head1 NAME
 
-ACLTestApp::C::Auth - 
+ACLTestApp::Controller::Auth - 
 
 =head1 SYNOPSIS
 
-	use ACLTestApp::C::Auth;
+	use ACLTestApp::Controller::Auth;
 
 =head1 DESCRIPTION
 

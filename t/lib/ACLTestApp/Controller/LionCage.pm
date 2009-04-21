@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package ACLTestApp::C::LionCage;
+package ACLTestApp::Controller::LionCage;
 use base qw/Catalyst::Controller/;
 
 use strict;
@@ -19,11 +19,11 @@ __END__
 
 =head1 NAME
 
-ACLTestApp::C::LionCage - 
+ACLTestApp::Controller::LionCage - 
 
 =head1 SYNOPSIS
 
-	use ACLTestApp::C::LionCage;
+	use ACLTestApp::Controller::LionCage;
 
 =head1 DESCRIPTION
 

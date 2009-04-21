@@ -17,10 +17,11 @@ t/01use.t
 t/02pod.t
 t/03podcoverage.t
 t/lib/ACLTestApp.pm
-t/lib/ACLTestApp/C/Auth.pm
-t/lib/ACLTestApp/C/LionCage.pm
-t/lib/ACLTestApp/C/Zoo.pm
-t/lib/ACLTestApp/C/Zoo/Penguins.pm
+t/lib/ACLTestApp/Controller/Auth.pm
+t/lib/ACLTestApp/Controller/LionCage.pm
+t/lib/ACLTestApp/Controller/Zoo.pm
+t/lib/ACLTestApp/Controller/Zoo/Penguins.pm
 t/lib/ACLTestApp2.pm
 t/live_app.t
 t/more_live_app.t
+TODO

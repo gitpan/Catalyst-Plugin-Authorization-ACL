@@ -15,6 +15,13 @@ requires 'Class::Throwable';
 requires 'Tree::Simple::Visitor::FindByPath';
 requires 'Tree::Simple::Visitor::GetAllDescendents';
 
+requires 'MRO::Compat';
+
+if($] < 5.009_005) {
+    requires 'Class::C3::XS' => '0.08';
+    requires 'Class::C3' => '0.20';
+}
+
 test_requires 'Test::More';
 
 WriteAll;

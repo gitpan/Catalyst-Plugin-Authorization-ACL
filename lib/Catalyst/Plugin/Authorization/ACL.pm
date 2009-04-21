@@ -4,7 +4,8 @@ use base qw/Class::Data::Inheritable/;
 use strict;
 use warnings;
 
-use NEXT;
+use MRO::Compat;
+use mro 'c3';
 use Scalar::Util ();
 use Catalyst::Plugin::Authorization::ACL::Engine;
 
@@ -13,14 +14,12 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
 sub execute {
     my ( $c, $class, $action ) = @_;
-
-    local $NEXT::NEXT{ $c, "execute" };
 
     if (    Scalar::Util::blessed($action)
         and $action->name ne "access_denied"
@@ -38,7 +37,7 @@ sub execute {
 
     }
 
-    $c->NEXT::execute( $class, $action );
+    $c->maybe::next::method( $class, $action );
 }
 
 sub acl_allow_root_internals {
@@ -51,7 +50,7 @@ sub acl_allow_root_internals {
 
 sub setup_actions {
     my $app = shift;
-    my $ret = $app->NEXT::setup_actions(@_);
+    my $ret = $app->maybe::next::method(@_);
 
     $app->_acl_engine(
         Catalyst::Plugin::Authorization::ACL::Engine->new($app) );

@@ -1,0 +1,22 @@
+Need to rewrite ACL/Engiine to get rid of Dispatcher::tree warning:
+
+02:04 <@t0m> Caelum: split the path, call get_containers, call get_action on them.. Something like that..
+02:05 <@t0m> Caelum: They're gonna delegate to methods on the tree anway under the hood, but the tree should be an implementation detail as far as you're concerned.
+02:05 <@t0m> Or, just document how to do it write with Chained, and mark ACL as deprecated :)
+
+Check for any role...earlier on RT:
+
+> If you want to check for either role, do something like this, described in "Flexible Rules":
+> 
+> use Catalyst::Plugin::Authorization::ACL::Engine qw/$ALLOWED $DENIED/;
+> 
+> __PACAKGE__->deny_access_unless( "/foo/bar", sub {
+>     my ($c, $action) = @_;
+>     if ($c->check_any_user_role(qw/admin user/)) {
+>         die $ALLOWED;
+>     } else {
+>         die $DENIED;
+>     }
+> } );
+> 
+> Perhaps we should have a syntax to make this easier?
