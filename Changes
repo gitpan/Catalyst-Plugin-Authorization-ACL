@@ -1,39 +1,44 @@
 Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
 
-0.11    2009-04-21
+0.12  2009-09-25 09:35:51
+        - workaround for a test failure on some configurations of Strawberry
+        Perl
+        - add test_requires for things the tests depend on
+
+0.11  2009-04-21
         - switch from NEXT to MRO::Compat
 
-0.10    2008-10-13
+0.10  2008-10-13
         - fix access_denied action support
 
-0.09    2008-08-22
+0.09  2008-08-22
         - fix the overwriting of $c->req->args for access_denied handlers
 
-0.08    2006-07-21 20:01:00
+0.08  2006-07-21 20:01:00
         - protect ACL::Engine from custom $SIG{__DIE__} handlers
 
-0.07    2006-07-05 23:15:27
+0.07  2006-07-05 23:15:27
         - support for ACL setup in app config
         - bug fix for private access_denied action
 
-0.06    2005-12-25 20:37:00
+0.06  2005-12-25 20:37:00
         - Added forcibly_allow_access, proper denial handling
         - allow for constant conditions
         - i think there was something else
 
-0.05    2005-12-25 20:37:00
+0.05  2005-12-25 20:37:00
         - Forgot to changelog this release ;-)
 
-0.04    2005-12-08 10:15:00
+0.04  2005-12-08 10:15:00
         - Fix a bug with ACLs on "/"
 
-0.03    2005-12-04 22:07:00
+0.03  2005-12-04 22:07:00
         - Maybe some tiny doc fixes
         - No longer relies on Test::Plan which had some trouble with windows
           and was used incorrectly anyhow ;-)
 
-0.02    ???
+0.02  ???
         - can't recall, may have been drunk
 
-0.01    ???
+0.01  ???
         - Initial release.

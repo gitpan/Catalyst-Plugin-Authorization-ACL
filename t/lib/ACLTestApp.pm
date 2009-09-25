@@ -87,7 +87,9 @@ __PACKAGE__->deny_access_unless("/zoo/moose", [qw/moose_trainer/]);
 __PACKAGE__->acl_add_rule("/zoo/penguins/tux", sub {
 	my ( $c, $action ) = @_;
 	my $user = $c->user;
-	die ( ( $user && $user->os eq "linux" ) ? $ALLOWED : $DENIED );
+	die ( ( $user && $user->os eq "linux" ) ? 
+                $Catalyst::Plugin::Authorization::ACL::Engine::ALLOWED : 
+                $Catalyst::Plugin::Authorization::ACL::Engine::DENIED );
 });
 
 __PACKAGE__->allow_access_if("/zoo/penguins/madagascar", sub { 
