@@ -17,7 +17,7 @@ BEGIN {
     } or plan 'skip_all' => "A bunch of plugins are required for this test... Look in the source if you really care... $@";
     plan tests => 97;
 }
-	
+
 use Test::WWW::Mechanize::Catalyst 'ACLTestApp';
 
 my $m = Test::WWW::Mechanize::Catalyst->new;

@@ -10,17 +10,21 @@ name 'Catalyst-Plugin-Authorization-ACL';
 all_from 'lib/Catalyst/Plugin/Authorization/ACL.pm';
 
 test_requires 'Test::More';
-test_requires 'Catalyst::Plugin::Authentication';
-test_requires 'Catalyst::Plugin::Authorization::Roles';
 test_requires 'Catalyst::Plugin::Session';
 test_requires 'Catalyst::Plugin::Session::State::Cookie';
+test_requires 'Test::WWW::Mechanize::Catalyst';
 
-requires 'Catalyst::Runtime' => '5.7000';
+requires 'Catalyst::Runtime' => '5.80013';
+requires 'Catalyst::Plugin::Authentication';
+requires 'Catalyst::Plugin::Authorization::Roles';
+requires 'Moose';
+requires 'MRO::Compat';
+requires 'namespace::autoclean';
 requires 'Class::Data::Inheritable';
 requires 'Class::Throwable';
+requires 'Tree::Simple';
 requires 'Tree::Simple::Visitor::FindByPath';
 requires 'Tree::Simple::Visitor::GetAllDescendents';
-requires 'MRO::Compat';
 
 resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Plugin-Authorization-ACL/';
 

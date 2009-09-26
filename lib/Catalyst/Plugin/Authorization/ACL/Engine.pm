@@ -1,32 +1,71 @@
 package Catalyst::Plugin::Authorization::ACL::Engine;
-use base qw/Class::Accessor::Fast Exporter/;
 
-use strict;
-use warnings;
+use namespace::autoclean;
+use Moose;
+extends qw/Moose::Object Exporter/;
 
 # I heart stevan
 use Class::Throwable;
+use Tree::Simple;
 use Tree::Simple::Visitor::FindByPath;
 use Tree::Simple::Visitor::GetAllDescendents;
 use Carp qw/croak/;
+use List::Util 'first';
 
-BEGIN { __PACKAGE__->mk_accessors(qw/app actions/) }
+has app     => (is => 'rw');
+has actions => (is => 'ro', isa => 'HashRef', default => sub { {} });
+has _app_actions_tree => (is => 'ro', isa => 'Tree::Simple', lazy_build => 1);
 
 our $DENIED  = bless {}, __PACKAGE__ . "::Denied";
 our $ALLOWED = bless {}, __PACKAGE__ . "::Allowed";
 
 our @EXPORT_OK = qw/$DENIED $ALLOWED/;
 
-sub new {
-    my ( $class, $c ) = @_;
+sub BUILDARGS {
+    my ($self, $c) = @_;
+    return +{ app => $c };
+}
 
-    my $self = bless {
-        actions  => {},
-        app      => $c,
-        cxt_info => {},
-    }, $class;
+sub _build__app_actions_tree {
+    my $self = shift;
+    my $root = Tree::Simple->new('/', Tree::Simple->ROOT);
+    my $app  = $self->app;
 
-    $self;
+    my @actions = map {
+        my $controller = $_;
+        map $controller->action_for($_->name), $controller->get_action_methods
+    } grep $_->isa('Catalyst::Controller'), values %{ $app->components };
+
+    for my $action (@actions) {
+        my @path = split '/', $action->reverse;
+        my $name = pop @path;
+
+        if (@path) {
+            my $by_path = Tree::Simple::Visitor::FindByPath->new;
+            $by_path->setSearchPath(@path);
+            $root->accept($by_path);
+
+            if (my $namespace_node = $by_path->getResult) {
+                $namespace_node->addChild(Tree::Simple->new($action));
+                next;
+            }
+        }
+
+        my $node = $root;
+        for my $el (@path) {
+            if (my $found = first { $_->getNodeValue eq $el }
+                @{ $node->getAllChildren }) {
+                $node = $found;
+            }
+            else {
+                $node = Tree::Simple->new($el, $node);
+            }
+        }
+
+        $node->addChild(Tree::Simple->new($action));
+    }
+
+    return $root;
 }
 
 sub add_deny {
@@ -118,7 +157,7 @@ sub add_rule {
     }
     else {
         my @path = grep { $_ ne "" } split( "/", $path );
-        my $tree = $d->tree;
+        my $tree = $self->_app_actions_tree;
 
         my $subtree = @path
           ? do {
@@ -143,21 +182,21 @@ sub add_rule {
             "Adding ACL rule from $cxt to all the actions under $path")
           if $self->app->debug;
 
-        foreach my $node ( $subtree, $descendents->getResults ) {
-            my ( $container, $depth ) =
-              ( $node->getNodeValue, $node->getDepth );
+        foreach my $action_node ( $descendents->getResults ) {
+            next unless $action_node->isLeaf;
 
-            foreach my $action ( grep { $filter->($_) }
-                values %{ $container->actions } )
-            {
-                my $sort_index =
-                  1 + ( $depth - $root_depth )
-                  ;    # how far an action is from the origin of the ACL
-                $self->app->log->debug("... $action at sort index $sort_index")
-                  if $self->app->debug;
-                $self->append_rule_to_action( $action, $sort_index, $rule, $cxt,
-                );
-            }
+            my ( $action, $depth ) =
+              ( $action_node->getNodeValue, $action_node->getDepth );
+
+            next unless $filter->($action);
+
+            my $sort_index =
+              ( $depth - $root_depth )
+              ;    # how far an action is from the origin of the ACL
+            $self->app->log->debug("... $action at sort index $sort_index")
+              if $self->app->debug;
+            $self->append_rule_to_action( $action, $sort_index, $rule, $cxt,
+            );
         }
     }
 }

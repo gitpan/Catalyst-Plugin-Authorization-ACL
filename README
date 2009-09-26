@@ -272,10 +272,13 @@ SEE ALSO
     Catalyst::Plugin::Authorization::Roles,
     <http://catalyst.perl.org/calendar/2005/24>
 
-AUTHORS
+AUTHOR
     Yuval Kogman <nothingmuch@woobling.org>
 
-    Jess Robinson
+CONTRIBUTORS
+    castaway: Jess Robinson
+
+    caelum: Rafael Kitover <rkitover@cpan.org>
 
 COPYRIGHT & LICENSE
     Copyright (c) 2008 the aforementioned authors.

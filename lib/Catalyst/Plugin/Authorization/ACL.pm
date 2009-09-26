@@ -14,7 +14,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine;
 
 BEGIN { __PACKAGE__->mk_classdata("_acl_engine") }
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
@@ -459,11 +459,15 @@ any (access is denied if a rule raises an exception).
 L<Catalyst::Plugin::Authentication>, L<Catalyst::Plugin::Authorization::Roles>,
 L<http://catalyst.perl.org/calendar/2005/24>
 
-=head1 AUTHORS
+=head1 AUTHOR
 
 Yuval Kogman E<lt>nothingmuch@woobling.orgE<gt>
 
-Jess Robinson
+=head1 CONTRIBUTORS
+
+castaway: Jess Robinson
+
+caelum: Rafael Kitover E<lt>rkitover@cpan.orgE<gt>
 
 =head1 COPYRIGHT & LICENSE
 

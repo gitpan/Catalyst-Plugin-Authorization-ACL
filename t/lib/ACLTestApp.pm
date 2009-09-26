@@ -19,29 +19,6 @@ use Catalyst qw/
 
 use Catalyst::Plugin::Authorization::ACL::Engine qw/$DENIED $ALLOWED/;
 
-sub restricted : Local {
-	my ( $self, $c ) = @_;
-	$c->res->body( "restricted" );
-}
-
-sub default : Private {
-	my ( $self, $c ) = @_;
-	$c->res->body( "welcome to the zoo!" );
-	
-}
-
-sub access_denied : Private {
-    my ( $self, $c ) = @_;
-    $c->res->body($c->res->body . 'denied');
-}
-
-sub end : Private {
-    my ( $self, $c ) = @_;
-    if ($c->res->body !~ /denied/) {
-        $c->res->body($c->res->body . 'allowed');
-    }
-}
-
 __PACKAGE__->config(
     authentication => {
         users => {

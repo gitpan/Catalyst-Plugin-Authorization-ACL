@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
 
+0.13  2009-09-26 03:34:16
+        - fix use of $dispatcher->tree warning
+        - fix actions in testapp warning
+
 0.12  2009-09-25 09:35:51
         - workaround for a test failure on some configurations of Strawberry
         Perl

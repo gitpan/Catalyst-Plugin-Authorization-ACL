@@ -3,12 +3,11 @@ abstract: 'ACL support for Catalyst applications.'
 author:
   - 'Yuval Kogman <nothingmuch@woobling.org>'
 build_requires:
-  Catalyst::Plugin::Authentication: 0
-  Catalyst::Plugin::Authorization::Roles: 0
   Catalyst::Plugin::Session: 0
   Catalyst::Plugin::Session::State::Cookie: 0
   ExtUtils::MakeMaker: 6.42
   Test::More: 0
+  Test::WWW::Mechanize::Catalyst: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
@@ -25,18 +24,23 @@ no_index:
 provides:
   Catalyst::Plugin::Authorization::ACL:
     file: lib/Catalyst/Plugin/Authorization/ACL.pm
-    version: 0.12
+    version: 0.13
   Catalyst::Plugin::Authorization::ACL::Engine:
     file: lib/Catalyst/Plugin/Authorization/ACL/Engine.pm
 requires:
-  Catalyst::Runtime: 5.7000
+  Catalyst::Plugin::Authentication: 0
+  Catalyst::Plugin::Authorization::Roles: 0
+  Catalyst::Runtime: 5.80013
   Class::Data::Inheritable: 0
   Class::Throwable: 0
   MRO::Compat: 0
+  Moose: 0
+  Tree::Simple: 0
   Tree::Simple::Visitor::FindByPath: 0
   Tree::Simple::Visitor::GetAllDescendents: 0
+  namespace::autoclean: 0
   perl: 5.8.0
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Plugin-Authorization-ACL/
-version: 0.12
+version: 0.13
