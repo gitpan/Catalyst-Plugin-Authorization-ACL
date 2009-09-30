@@ -24,7 +24,7 @@ no_index:
 provides:
   Catalyst::Plugin::Authorization::ACL:
     file: lib/Catalyst/Plugin/Authorization/ACL.pm
-    version: 0.13
+    version: 0.14
   Catalyst::Plugin::Authorization::ACL::Engine:
     file: lib/Catalyst/Plugin/Authorization/ACL/Engine.pm
 requires:
@@ -43,4 +43,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Plugin-Authorization-ACL/
-version: 0.13
+version: 0.14

@@ -52,7 +52,9 @@ DESCRIPTION
     Testing continues until a rule explcitly allows or denies access.
 
 METHODS
-  allow_access_if $path, $rule
+  allow_access_if
+    Arguments: $path, $rule
+
     Check the rule condition and allow access to the actions under $path if
     the rule returns true.
 
@@ -63,7 +65,14 @@ METHODS
     the next rule in the chain will be checked - in this sense the
     combinatory behavior of these rules is like logical OR.
 
-  deny_access_unless $path, $rule
+  allow_access_if_any
+    Arguments: $path, \@roles
+
+    Same as above for any role in the list.
+
+  deny_access_unless
+    Arguments: $path, $rule
+
     Check the rule condition and disallow access if the rule returns false.
 
     This is normally useful to restrict access to any portion of the
@@ -73,23 +82,32 @@ METHODS
     the next rule in the chain will be checked - in this sense the
     combinatory behavior of these rules is like logical AND.
 
-  allow_access $path
-  deny_access $path
+  deny_access_unless_any
+    Arguments: $path, \@roles
+
+    Same as above for any role in the list.
+
+  allow_access
+  deny_access
+    Arguments: $path
+
     Unconditionally allow or deny access to a path.
 
-  acl_add_rule $path, $rule, [ $filter ]
+  acl_add_rule
+    Arguments: $path, $rule, [ $filter ]
+
     Manually add a rule to all the actions under $path using the more
     flexible (but more verbose) method:
 
-            __PACKAGE__->acl_add_rule(
-                    "/foo",
-                    sub { ... }, # see FLEXIBLE RULES below
-                    sub {
-                            my $action = shift;
-                            # return a true value if you want to apply the rule to this action
-                            # called for all the actions under "/foo"
-                    }
-            };
+        __PACKAGE__->acl_add_rule(
+            "/foo",
+            sub { ... }, # see FLEXIBLE RULES below
+            sub {
+                my $action = shift;
+                # return a true value if you want to apply the rule to this action
+                # called for all the actions under "/foo"
+            }
+        };
 
     In this case the rule must be a sub reference (or method name) to be
     invoked on $c.
@@ -97,8 +115,12 @@ METHODS
     The default filter will skip all actions starting with an underscore,
     namely "_DISPATCH", "_AUTO", etc (but not "auto", "begin", et al).
 
-  acl_access_denied $c, $class, $action, $err
-  acl_access_allowed $c, $class, $action
+  acl_access_denied
+    Arguments: $c, $class, $action, $err
+
+  acl_access_allowed
+    Arguments: $c, $class, $action
+
     The default event handlers for access denied or allowed conditions. See
     below on handling access violations.
 
@@ -145,15 +167,20 @@ RULES
     "deny_access_unless" will explicitly disallow if the predicate is false.
 
     Role Lists
-                __PACAKGE__->deny_access_unless( "/foo/bar", [qw/admin moose_trainer/] );
+          __PACAKGE__->deny_access_unless_any( "/foo/bar", [qw/admin moose_trainer/] );
 
         When the role is evaluated the
         Catalyst::Plugin::Authorization::Roles will be used to check whether
         the currently logged in user has the specified roles.
 
-        If "allow_access_if" is used, the presence of all the roles will
-        immediately permit access, and if "deny_access_unless" is used the
-        lack of any of the roles will immediately deny access.
+        If "allow_access_if_any" is used, the presence of any of the roles
+        in the list will immediately permit access, and if
+        "deny_access_unless_any" is used, the lack of all of the roles will
+        immediately deny access.
+
+        Similarly, if "allow_access_if" is used, the presence of all the
+        roles will immediately permit access, and if "deny_access_unless" is
+        used, the lack of any of the roles will immediately deny access.
 
         When specifying a role list without the
         Catalyst::Plugin::Authorization::Roles plugin loaded the ACL engine
@@ -164,8 +191,8 @@ RULES
         action objects. The boolean return value will determine the behavior
         of the rule.
 
-                __PACKAGE__->allow_access_if( "/gorch", sub { ... } );
-                __PACKAGE__->deny_access_unless( "/moose", "method_name" );
+            __PACKAGE__->allow_access_if( "/gorch", sub { ... } );
+            __PACKAGE__->deny_access_unless( "/moose", "method_name" );
 
         When specifying a method name the rule engine ensures that it can be
         invoked using "can" in UNIVERSAL.
@@ -190,18 +217,18 @@ RULES
     explicitly allowing or denying access based on how much mojo the current
     user has:
 
-            __PACKAGE__->acl_add_rule(
-                    "/foo",
-                    sub {
-                            my ( $c, $action ) = @_;
+        __PACKAGE__->acl_add_rule(
+            "/foo",
+            sub {
+                my ( $c, $action ) = @_;
 
-                            if ( $c->user->mojo > 50 ) {
-                                    die $ALLOWED;
-                            } else {
-                                    die $DENIED;
-                            }
-                    }
-            );
+                if ( $c->user->mojo > 50 ) {
+                    die $ALLOWED;
+                } else {
+                    die $DENIED;
+                }
+            }
+        );
 
 HANDLING DENIAL
     There are two plugin methods that can be called when a rule makes a
@@ -230,7 +257,6 @@ HANDLING DENIAL
             ...
             $c->forcibly_allow_access
                 if $you->mean_it eq "really";
-
         }
 
     If you call "forcibly_allow_access" then the blocked action will be
@@ -281,7 +307,7 @@ CONTRIBUTORS
     caelum: Rafael Kitover <rkitover@cpan.org>
 
 COPYRIGHT & LICENSE
-    Copyright (c) 2008 the aforementioned authors.
+    Copyright (c) 2008,2009 the aforementioned authors.
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.

@@ -75,7 +75,7 @@ login(qw/quxx ding/);
 is_allowed("zoo/elk");
 is_allowed("zoo/moose");
 is_denied("zoo/rabbit");
-is_denied("lioncage");
+is_allowed("lioncage");
 is_denied("restricted");
 is_allowed("zoo/penguins/emperor");
 is_denied("zoo/penguins/tux");
