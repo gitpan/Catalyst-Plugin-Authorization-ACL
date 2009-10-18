@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Authorization::ACL
 
+0.15  2009-10-18 05:56:51
+        - apply fix from RT#50604 (filter undef actions when building tree)
+
 0.14  2009-09-30 22:20:41
         - add 'deny_access_unless_any' and 'allow_access_if_any' as shortcuts
         for any role in a list

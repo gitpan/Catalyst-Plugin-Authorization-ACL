@@ -12,7 +12,7 @@ use Catalyst::Plugin::Authorization::ACL::Engine qw/$DENIED $ALLOWED/;
 
 __PACKAGE__->mk_classdata("_acl_engine");
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 

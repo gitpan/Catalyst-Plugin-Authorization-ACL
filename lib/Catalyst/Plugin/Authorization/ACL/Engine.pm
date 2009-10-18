@@ -31,7 +31,7 @@ sub _build__app_actions_tree {
     my $root = Tree::Simple->new('/', Tree::Simple->ROOT);
     my $app  = $self->app;
 
-    my @actions = map {
+    my @actions = grep defined, map {
         my $controller = $_;
         map $controller->action_for($_->name), $controller->get_action_methods
     } grep $_->isa('Catalyst::Controller'), values %{ $app->components };
