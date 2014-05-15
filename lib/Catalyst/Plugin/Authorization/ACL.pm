@@ -1,5 +1,8 @@
 package Catalyst::Plugin::Authorization::ACL;
-
+BEGIN {
+  $Catalyst::Plugin::Authorization::ACL::AUTHORITY = 'cpan:RKITOVER';
+}
+$Catalyst::Plugin::Authorization::ACL::VERSION = '0.16';
 use namespace::autoclean;
 use Moose;
 use mro 'c3';
@@ -11,8 +14,6 @@ use Catalyst::Plugin::Authorization::ACL::Engine qw/$DENIED $ALLOWED/;
 # refactor forcibly_allow_access so that the guts are cleaner
 
 __PACKAGE__->mk_classdata("_acl_engine");
-
-our $VERSION = '0.15';
 
 my $FORCE_ALLOW = bless {}, __PACKAGE__ . "::Exception";
 
@@ -336,7 +337,7 @@ policy, access to the path will be permitted.
 
 To apply a rule to an action or group of actions you must supply a path.
 
-This path is what you should see dumped at the begining of the L<Catalyst>
+This path is what you should see dumped at the beginning of the L<Catalyst>
 server's debug output.
 
 For example, for the C<foo> action defined at the root level of your
@@ -517,7 +518,9 @@ caelum: Rafael Kitover E<lt>rkitover@cpan.orgE<gt>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright (c) 2008,2009 the aforementioned authors.
+Copyright (c) 2005 - 2009
+the Catalyst::Plugin::Authorization::ACL L</AUTHOR> and L</CONTRIBUTORS>
+as listed above.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

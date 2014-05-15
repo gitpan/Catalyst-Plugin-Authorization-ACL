@@ -1,5 +1,8 @@
 package Catalyst::Plugin::Authorization::ACL::Engine;
-
+BEGIN {
+  $Catalyst::Plugin::Authorization::ACL::Engine::AUTHORITY = 'cpan:RKITOVER';
+}
+$Catalyst::Plugin::Authorization::ACL::Engine::VERSION = '0.16';
 use namespace::autoclean;
 use Moose;
 extends qw/Moose::Object Exporter/;
